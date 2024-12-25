@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .    # dockerfile 위치
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app    # 현재 디렉토리를 컨테이너 내부의 /app에 연결
+    ports:
+      - "8000:8000"     # 호스트와 컨테이너 포트 연결
+    env_file:
+      - .env
