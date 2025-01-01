@@ -59,3 +59,16 @@ class ChangePasswordAPIView(APIView):
         request.user.set_password(new_password)
         request.user.save()
         return Response({'message' : '비밀번호가 변경되었습니다.'}, status=200)
+
+
+class DeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    # 회원탈퇴
+    def delete(self, request, pk):
+        user = request.user
+        password = request.data.get('password')
+        if not password or not check_password(password, user.password):
+            return Response({'error' : '올바른 비밀번호를 입력해주세요.'}, status=400)
+
+        user.delete()
+        return Response(status=200)
