@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,python,django,visualstudiocode,venv,windows
 
 aaa.py
+a.txt
 
 
 ### Django ###
