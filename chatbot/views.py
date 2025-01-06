@@ -6,6 +6,7 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from datetime import date
+from django.utils import timezone
 from chatbot.models import ChatSession, ChatBot
 from chatbot.serializers import ChatBotSerializer, ChatSessionSerializer
 
@@ -15,30 +16,23 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-message = [
-    {
-        "role": "system",
-        "content": "사용자의 친근한 대화 상대가 되어야 해. 사용자가 하루 일과나 감정을 말하면 거기에 공감하면서 반응을 해."
-    }
-]
-
 
 class ChatBotAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     # 사용자와 오늘 날짜를 기준으로 세션 가져오기 or 생성
     def get_or_create_chat_session(self, user):
-        today = date.today()    # 오늘 날짜
-        session, created = ChatSession.objects.get_or_create(user=user, created_at=today)   # 세션 생성 or 가져오기
+        # today = date.today()    # 오늘 날짜
+        today = timezone.localdate()
+        session, created = ChatSession.objects.get_or_create(user=user, created_at__date=today)   # 세션 생성 or 가져오기
         return session
 
     def post(self, request):
         # 사용자 메세지 가져오기
         user_message = request.data.get('message')
 
-
         # 사용자와 연결된 세션 가져오기
-        session = self.get_or_create_chat_session(request.user)     # 세션 가져오기
+        session = self.get_or_create_chat_session(request.user)     
 
         # 사용자 메세지 저장
         ChatBot.objects.create(
@@ -47,23 +41,40 @@ class ChatBotAPIView(APIView):
             message_text = user_message
         )
 
+        # 이전 대화 기록 불러오기
+        previous_message = ChatBot.objects.filter(session=session).order_by("timestamp")
+        messages = [
+            {
+                "role": "system",
+                "content": ("너는 사용자의 친근한 대화 상대가 되어야 해. "
+                            "사용자가 하루 일과나 감정을 말하면 거기에 공감하면서 반응을 해. "
+                            "사용자의 대화를 항상 기억하며, 이전 대화 내용에 기반하여 응답해야 해. "
+                            "대화를 이어가는데 필요한 모든 정보를 바탕으로 답변하며, 공손하지만 친근한 반말을 유지해.")
+            }
+        ]
+
+        for msg in previous_message:
+            if msg.user == request.user:
+                role = 'user'   # 사용자가 보낸 메세지라면 user 역할로 추가
+            else:
+                role = 'assistant'      # 챗봇이 보낸 메세지라면 assistant 역할로 추가
+            messages.append({'role' : role, 'content' : msg.message_text})
 
         # 사용자 메세지를 message 리스트에 추가
-        global message
-        message.append({'role' : 'user', 'content' : user_message})
+        messages.append({
+            'role' : 'user',
+            'content' : user_message
+        })
 
         # openai 호출
         try:
             completion = client.chat.completions.create(
             model="gpt-4o",
-            messages=message
+            messages=messages
             )
 
             # 챗봇 응답 내용 추출
             response_content = completion.choices[0].message.content
-
-            # 챗봇 응답을 message 리스트에 추가
-            message.append({'role' : 'assistant', 'content' : response_content})
 
             # 챗봇 응답 db에 저장
             ChatBot.objects.create(
@@ -75,12 +86,3 @@ class ChatBotAPIView(APIView):
             return Response({'response' : response_content})
         except Exception as e:
             return Response({'error' : str(e)}, status=500)
-        
-
-class ChatSessionAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        sessions = ChatSession.objects.filter(user=request.user).order_by("-created_at")
-        serializer = ChatSessionSerializer(sessions, many=True)
-        return Response(serializer.data)
