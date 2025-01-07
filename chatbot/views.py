@@ -22,8 +22,8 @@ class ChatBotAPIView(APIView):
 
     # 사용자와 오늘 날짜를 기준으로 세션 가져오기 or 생성
     def get_or_create_chat_session(self, user):
-        # today = date.today()    # 오늘 날짜
         today = timezone.localdate()
+        # created_at__date 언더스코어 두개 : 특정 필드의 하위 속성이나 변환된 값을 필터링 하기 위해 사용
         session, created = ChatSession.objects.get_or_create(user=user, created_at__date=today)   # 세션 생성 or 가져오기
         return session
 
@@ -42,7 +42,7 @@ class ChatBotAPIView(APIView):
         )
 
         # 이전 대화 기록 불러오기
-        previous_message = ChatBot.objects.filter(session=session).order_by("timestamp")
+        previous_message = ChatBot.objects.filter(session=session, user=request.user).order_by("timestamp")
         messages = [
             {
                 "role": "system",
@@ -61,10 +61,7 @@ class ChatBotAPIView(APIView):
             messages.append({'role' : role, 'content' : msg.message_text})
 
         # 사용자 메세지를 message 리스트에 추가
-        messages.append({
-            'role' : 'user',
-            'content' : user_message
-        })
+        messages.append({'role' : 'user', 'content' : user_message})
 
         # openai 호출
         try:
