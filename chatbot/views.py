@@ -89,21 +89,53 @@ class CreateDiaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, session_id):
-        # db에서 세션 id 불러와서 openai api한테 세션을 기반으로 일기 생성해달라고 요청하기
-
         # 세션 id 가져오고 없으면 에러 반환
         try:
             session = ChatSession.objects.get(id=session_id, user=request.user)
         except (
             ChatSession.DoesNotExist
-        ):  # # DoesNotExist (db 조회시 객체가 존재하지 않을 때) vs KeyError (dict에서 존재하지 않는 key값 조회)
+        ):  # DoesNotExist (db 조회시 객체가 존재하지 않을 때) vs KeyError (dict에서 존재하지 않는 key값 조회)
             return Response(
-                {"error": "세션이 존재하지 않거나 접근 권한이 없습니다."}, status=400
+                {"error": "세션이 존재하지 않거나 접근 권한이 없습니다."}, status=404
             )
 
         # 세션 id가 있다면 세션 데이터 가져오기
         chat_message = ChatBot.objects.filter(session=session).order_by("timestamp")
-
-        # 세션에 저장된 대화 메세지 가져오기
+        if not chat_message.exists():
+            return Response({"error": "세션에 대화가 없습니다."}, status=404)
 
         # 대화 내용을 api에 전달해서 내용 반환
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "너는 세션에 있는 대화 내용을 바탕으로 일기를 작성하는 비서야."
+                    "다른 감정과 불필요한 말은 추가하지 말고 사용자가 대화한 내용을 기반으로 일기를 작성해"
+                    "인칭이 필요하다면 1인칭으로 유저가 작성한 것이라 생각하고 작성해"
+                ),
+            }
+        ]
+
+        # 이전 메세지 순회
+        for msg in chat_message:
+            # 메시지를 작성한 사용자가 현재 요청을 보낸 사용자라면
+            if msg.user == request.user:
+                role = "user"  # 역할을 user로 설정
+            else:
+                role = "assistant"
+            messages.append({"role": role, "content": msg.message_text})
+
+        # api 호출
+        try:
+            completion = client.chat.completions.create(
+                model="gpt-4o", messages=messages, temperature=0.7
+            )
+
+            # 생성된 일기 내용
+            diary_content = completion.choices[0].message.content
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+        # 결과 반환
+        return Response({"session_id": session_id, "diary": diary_content})
