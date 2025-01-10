@@ -8,6 +8,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/accounts/", include("accounts.urls")),
     path("api/chatbot/", include("chatbot.urls")),
+    path("api/diary/", include("diary.urls")),
 ]
 
 # 로컬 이미지 (debug) - setting 연결

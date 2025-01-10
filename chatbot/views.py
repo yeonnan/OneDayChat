@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from datetime import date
 from django.utils import timezone
 from chatbot.models import ChatSession, ChatBot
+from diary.models import Diary
 
 
 load_dotenv()
@@ -118,7 +119,7 @@ class CreateDiaryAPIView(APIView):
 
         # 이전 메세지 순회
         for msg in chat_message:
-            # 메시지를 작성한 사용자가 현재 요청을 보낸 사용자라면
+            # 메세지를 작성한 사용자가 현재 요청을 보낸 사용자라면
             if msg.user == request.user:
                 role = "user"  # 역할을 user로 설정
             else:
@@ -137,5 +138,19 @@ class CreateDiaryAPIView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
+        # 세션 날짜 -> 제목
+        session_date = session.created_at.date()
+        title = f"{session_date}"
+
+        # 생성된 일기를 diary 모델에 저장
+        diary = Diary.objects.create(
+            user=request.user,
+            session=session,
+            title=title,
+            content=diary_content,
+        )
+
         # 결과 반환
-        return Response({"session_id": session_id, "diary": diary_content})
+        return Response(
+            {"session_id": session_id, "diary_id": diary.id, "diary": diary_content}
+        )
