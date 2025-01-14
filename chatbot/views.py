@@ -9,6 +9,7 @@ from datetime import date
 from django.utils import timezone
 from chatbot.models import ChatSession, ChatBot
 from diary.models import Diary
+import time
 
 
 load_dotenv()
@@ -30,11 +31,21 @@ class ChatBotAPIView(APIView):
         return session
 
     def post(self, request):
+        start_time_total = (
+            time.perf_counter()
+        )  # 요청부터 응답까지의 전체 처리 시간 측정
+
         # 사용자 메세지 가져오기
         user_message = request.data.get("message")
 
         # 사용자와 연결된 세션 가져오기
+        start_time_session = (
+            time.perf_counter()
+        )  # get_or 메서드에서 db에서 세션 정보를 가져오는 시간
         session = self.get_or_create_chat_session(request.user)
+        session_time_elapsed = (
+            time.perf_counter() - start_time_session
+        )  # 세션 생성, 불러오기 시간 계산
 
         # 사용자 메세지 저장
         ChatBot.objects.create(
@@ -42,9 +53,15 @@ class ChatBotAPIView(APIView):
         )
 
         # 이전 대화 기록 불러오기
+        start_time_fetch = (
+            time.perf_counter()
+        )  # 이전 대화 기록을 db에서 가져오는 작업에 걸리는 시간 측정
         previous_message = ChatBot.objects.filter(
             session=session, user=request.user
         ).order_by("timestamp")
+        fetch_time_elapsed = (
+            time.perf_counter() - start_time_fetch
+        )  # 이전 대화 기록 불러오기 시간 계산
         messages = [
             {
                 "role": "system",
@@ -68,6 +85,7 @@ class ChatBotAPIView(APIView):
         messages.append({"role": "user", "content": user_message})
 
         # openai 호출
+        start_time_api = time.perf_counter()  # openai api 호출 시작 시점 기록
         try:
             completion = client.chat.completions.create(
                 model="gpt-4o", messages=messages
@@ -80,8 +98,23 @@ class ChatBotAPIView(APIView):
             ChatBot.objects.create(
                 user=request.user, session=session, message_text=response_content
             )
+            api_time_elapsed = (
+                time.perf_counter() - start_time_api
+            )  # api 호출 시간 계산
+            total_time_elapsed = (
+                time.perf_counter() - start_time_total
+            )  # 전체 처리 시간 계산
 
-            return Response({"response": response_content})
+            # return Response({"response": response_content})
+            return Response(
+                {
+                    "response": response_content,
+                    "새로운 채팅방 세션 생성 시간": f"{session_time_elapsed:.4f} 초",  # 세션을 생성하거나 기존 세션을 불러오는 데 걸리는 시간
+                    "DB에서 대화기록 불러오는 시간": f"{fetch_time_elapsed:.4f} 초",  # 이전 대화 기록을 DB에서 가져오는데 걸리는 시간
+                    "API 호출 시간": f"{api_time_elapsed:.4f} 초",  # OpenAI LLM에 요청을 보내고 응답을 받는 데 걸리는 시간
+                    "전체 처리 시간": f"{total_time_elapsed:.4f} 초",  # 요청부터 응답까지 전체 소요 시간
+                }
+            )
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
