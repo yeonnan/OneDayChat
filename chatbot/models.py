@@ -17,6 +17,7 @@ class Image(models.Model):
 class ChatSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_summarized = models.BooleanField(default=False)  # 요약 여부
 
 
 class ChatBot(models.Model):
