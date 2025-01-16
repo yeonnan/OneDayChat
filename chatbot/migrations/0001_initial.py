@@ -10,13 +10,12 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("chatbot", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Diary",
+            name="Image",
             fields=[
                 (
                     "id",
@@ -27,10 +26,47 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("title", models.CharField(max_length=60)),
-                ("content", models.TextField()),
+                ("image", models.ImageField(upload_to="images/")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name="ChatSession",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("user_message_count_since_summary", models.IntegerField(default=0)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+            ],
+        ),
+        migrations.CreateModel(
+            name="ChatBot",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("message_text", models.TextField()),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
                 (
                     "image",
                     models.ForeignKey(
@@ -44,6 +80,7 @@ class Migration(migrations.Migration):
                     "session",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
+                        related_name="messages",
                         to="chatbot.chatsession",
                     ),
                 ),

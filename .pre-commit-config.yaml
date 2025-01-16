@@ -2,4 +2,6 @@ repos:
   - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
-      - id: black
+      - id: black     # Black의 고유 식별자. 항상 black으로 설정
+        name: black
+        args: ["--line-length", "180"]      # Black 실행 시 추가로 전달할 명령어 인자

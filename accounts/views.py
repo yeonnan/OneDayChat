@@ -47,9 +47,7 @@ class ChangePasswordAPIView(APIView):
         new_password = request.data.get("new_password")
 
         if not old_password or not new_password:
-            return Response(
-                {"error": "old password와 new password가 필요합니다."}, status=400
-            )
+            return Response({"error": "old password와 new password가 필요합니다."}, status=400)
 
         # 현재 비밀번호 확인
         if not check_password(old_password, request.user.password):

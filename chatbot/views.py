@@ -24,44 +24,74 @@ class ChatBotAPIView(APIView):
     # 사용자와 오늘 날짜를 기준으로 세션 가져오기 or 생성
     def get_or_create_chat_session(self, user):
         today = timezone.localdate()
-        # created_at__date 언더스코어 두개 : 특정 필드의 하위 속성이나 변환된 값을 필터링 하기 위해 사용
-        session, created = ChatSession.objects.get_or_create(
-            user=user, created_at__date=today
-        )  # 세션 생성 or 가져오기
+        session, created = ChatSession.objects.get_or_create(user=user, created_at__date=today)  # 세션 생성 or 가져오기
         return session
 
     def post(self, request):
-        start_time_total = (
-            time.perf_counter()
-        )  # 요청부터 응답까지의 전체 처리 시간 측정
+        # 📌 전체 처리 시간 측정 시작
+        start_time_total = time.perf_counter()
 
-        # 사용자 메세지 가져오기
+        # 1. 사용자 메세지 가져오기
         user_message = request.data.get("message")
 
-        # 사용자와 연결된 세션 가져오기
-        start_time_session = (
-            time.perf_counter()
-        )  # get_or 메서드에서 db에서 세션 정보를 가져오는 시간
+        # 2. 사용자와 연결된 세션 가져오기
+        start_time_session = time.perf_counter()  # 📌 get_or 메서드에서 db에서 세션 정보를 가져오는 시간
         session = self.get_or_create_chat_session(request.user)
-        session_time_elapsed = (
-            time.perf_counter() - start_time_session
-        )  # 세션 생성, 불러오기 시간 계산
+        session_time_elapsed = time.perf_counter() - start_time_session  # 📌 세션 생성, 불러오기 시간 계산
 
         # 사용자 메세지 저장
-        ChatBot.objects.create(
-            user=request.user, session=session, message_text=user_message
-        )
+        ChatBot.objects.create(user=request.user, session=session, message_text=user_message)
+
+        # 4. 요약용 메세지 카운트 증가 및 체크
+        session.user_message_count_since_summary += 1
+        session.save()
+
+        # summary_messages 기본 설정
+        summary_messages = []
+
+        # 3번 이상이면 요약 진행
+        if session.user_message_count_since_summary >= 6:
+            chat_history = ChatBot.objects.filter(session=session).order_by("timestamp")
+
+            # 요약 프롬프트
+            summary_messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "너는 대화 내용을 요약하는 비서야. 대화의 핵심 내용을 간결하고 명확하게 정리해" "간단한 인사말('안녕', '잘지냈어?')은 제외하고 주요 질문과 답변만 요약해"
+                    ),
+                }
+            ]
+            for msg in chat_history:
+                if msg.user == session.user:
+                    role = "user"
+                else:
+                    role = "assistant"
+                summary_messages.append({"role": role, "content": msg.message_text})
+
+        # 요약 api 호출
+        try:
+            # summary_messages가 비어 있지 않은 경우에만 호출
+            if summary_messages:
+                completion = client.chat.completions.create(model="gpt-3.5-turbo", messages=summary_messages)
+                summary_content = completion.choices[0].message.content
+
+                # 요약 결과를 assisntant 메세지로 저장
+                ChatBot.objects.create(user=session.user, session=session, message_text=f"[대화 요약]\n{summary_content}")
+
+                # 카운트 리셋
+                session.user_message_count_since_summary = 0
+                session.save()
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
         # 이전 대화 기록 불러오기
-        start_time_fetch = (
-            time.perf_counter()
-        )  # 이전 대화 기록을 db에서 가져오는 작업에 걸리는 시간 측정
-        previous_message = ChatBot.objects.filter(
-            session=session, user=request.user
-        ).order_by("timestamp")
-        fetch_time_elapsed = (
-            time.perf_counter() - start_time_fetch
-        )  # 이전 대화 기록 불러오기 시간 계산
+        start_time_fetch = time.perf_counter()  # 📌 이전 대화 기록을 db에서 가져오는 작업에 걸리는 시간 측정
+        previous_message = ChatBot.objects.filter(session=session).order_by("timestamp")
+        fetch_time_elapsed = time.perf_counter() - start_time_fetch  # 📌 이전 대화 기록 불러오기 시간 계산
+
+        # 6. 챗봇 llm
         messages = [
             {
                 "role": "system",
@@ -72,6 +102,7 @@ class ChatBotAPIView(APIView):
             }
         ]
 
+        # 이전 대화 기록 추가
         for msg in previous_message:
             if msg.user == request.user:
                 role = "user"  # 사용자가 보낸 메세지라면 user 역할로 추가
@@ -80,28 +111,27 @@ class ChatBotAPIView(APIView):
             messages.append({"role": role, "content": msg.message_text})
 
         # 사용자 메세지를 message 리스트에 추가
-        messages.append({"role": "user", "content": user_message})
+        # messages.append({"role": "user", "content": user_message})
+
+        # 사용자 메세지 추가
+        user_message = request.data.get("message")
+        if user_message:
+            messages.append({"role": "user", "content": user_message})  # 사용자 메시지 추가
+        else:
+            return Response({"error": "사용자 메시지가 비어 있습니다."}, status=400)  # 사용자 메시지가 없을 경우 에러 반환
 
         # openai 호출
-        start_time_api = time.perf_counter()  # openai api 호출 시작 시점 기록
+        start_time_api = time.perf_counter()  # 📌 openai api 호출 시작 시점 기록
         try:
-            completion = client.chat.completions.create(
-                model="gpt-4o", messages=messages
-            )
+            completion = client.chat.completions.create(model="gpt-4o", messages=messages)
 
             # 챗봇 응답 내용 추출
             response_content = completion.choices[0].message.content
 
             # 챗봇 응답 db에 저장
-            ChatBot.objects.create(
-                user=request.user, session=session, message_text=response_content
-            )
-            api_time_elapsed = (
-                time.perf_counter() - start_time_api
-            )  # api 호출 시간 계산
-            total_time_elapsed = (
-                time.perf_counter() - start_time_total
-            )  # 전체 처리 시간 계산
+            ChatBot.objects.create(user=request.user, session=session, message_text=response_content)
+            api_time_elapsed = time.perf_counter() - start_time_api  # 📌 api 호출 시간 계산
+            total_time_elapsed = time.perf_counter() - start_time_total  # 📌 전체 처리 시간 계산
 
             # return Response({"response": response_content})
             return Response(
@@ -124,15 +154,11 @@ class CreateDiaryAPIView(APIView):
         # 세션 id 가져오고 없으면 에러 반환
         try:
             session = ChatSession.objects.get(id=session_id, user=request.user)
-        except (
-            ChatSession.DoesNotExist
-        ):  # DoesNotExist (db 조회시 객체가 존재하지 않을 때) vs KeyError (dict에서 존재하지 않는 key값 조회)
-            return Response(
-                {"error": "세션이 존재하지 않거나 접근 권한이 없습니다."}, status=404
-            )
+        except ChatSession.DoesNotExist:  # DoesNotExist (db 조회시 객체가 존재하지 않을 때) vs KeyError (dict에서 존재하지 않는 key값 조회)
+            return Response({"error": "세션이 존재하지 않거나 접근 권한이 없습니다."}, status=404)
 
-        # 세션 id가 있다면 세션 데이터 가져오기
-        chat_message = ChatBot.objects.filter(session=session).order_by("timestamp")
+        # 세션 id가 있다면 세션 데이터 가져오기 (원본 메세지만)
+        chat_message = ChatBot.objects.filter(session=session).exclude(message_text__startswith="[대화 요약]").order_by("timestamp")
         if not chat_message.exists():
             return Response({"error": "세션에 대화가 없습니다."}, status=404)
 
@@ -159,9 +185,7 @@ class CreateDiaryAPIView(APIView):
 
         # api 호출
         try:
-            completion = client.chat.completions.create(
-                model="gpt-4o", messages=messages, temperature=0.7
-            )
+            completion = client.chat.completions.create(model="gpt-4o", messages=messages, temperature=0.7)
 
             # 생성된 일기 내용
             diary_content = completion.choices[0].message.content
@@ -182,6 +206,4 @@ class CreateDiaryAPIView(APIView):
         )
 
         # 결과 반환
-        return Response(
-            {"session_id": session_id, "diary_id": diary.id, "diary": diary_content}
-        )
+        return Response({"session_id": session_id, "diary_id": diary.id, "diary": diary_content})

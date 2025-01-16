@@ -4,9 +4,7 @@ from django.utils import timezone
 
 
 class Image(models.Model):
-    image = models.ImageField(
-        upload_to="images/"
-    )  # 이미지 파일이 MEDIA_ROOT/images/ 경로에 저장
+    image = models.ImageField(upload_to="images/")  # 이미지 파일이 MEDIA_ROOT/images/ 경로에 저장
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -17,14 +15,12 @@ class Image(models.Model):
 class ChatSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    is_summarized = models.BooleanField(default=False)  # 요약 여부
+    user_message_count_since_summary = models.IntegerField(default=0)
 
 
 class ChatBot(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    session = models.ForeignKey(
-        ChatSession, on_delete=models.CASCADE, related_name="messages"
-    )
+    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name="messages")
     message_text = models.TextField(null=False)
     # on_delete=models.SET_NULL : 참조된 객체(Image)가 삭제되면 외래키필드 값을 null로 설정
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True, blank=True)
