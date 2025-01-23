@@ -1,0 +1,27 @@
+{% load static %}       // base.js, css를 html에 로드할 수 있는 django 로직
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Day Chat</title>
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="{% static "css/base.css" %}">
+
+    {% block head %}{% endblock head %}
+
+    <script src="{% static "js/base.js" %}"></script>
+
+</head>
+<body>
+    
+
+
+    {% block content%}
+    
+    {% endblock content%}
+
+</body>
+</html>
