@@ -50,7 +50,11 @@ class ChatBotAPIView(APIView):
             if chat_history:
                 summary_content = summarize_chat_history(chat_history, request.user)
                 # 요약 결과를 db 저장
-                ChatBot.objects.create(user=session.user, session=session, message_text=f"[대화 요약]\n{summary_content}")
+                ChatBot.objects.create(
+                    user=session.user, 
+                    session=session, 
+                    message_text=f"[대화 요약]\n{summary_content}"
+                    )
 
                 # 카운트 리셋
                 session.user_message_count_since_summary = 0
@@ -68,7 +72,11 @@ class ChatBotAPIView(APIView):
         start_time_api = time.perf_counter()  # 📌 openai api 호출 시작 시점 기록
         try:
             # openai_service에 chat history + user message + user만 넘김
-            response_content = chatbot_response(chat_history=previous_message, user_message=user_message, user=request.user)
+            response_content = chatbot_response(
+                chat_history=previous_message, 
+                user_message=user_message, 
+                user=request.user
+                )
 
             # 챗봇 응답 db 저장
             ChatBot.objects.create(user=request.user, session=session, message_text=response_content)
@@ -122,4 +130,9 @@ class CreateDiaryAPIView(APIView):
         )
 
         # 5. 결과 반환
-        return Response({"session_id": session_id, "diary_id": diary.id, "diary": diary_content})
+        return Response({
+            "session_id": session_id, 
+            "diary_id": diary.id, 
+            "diary": diary_content
+            }
+        )
