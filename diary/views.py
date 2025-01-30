@@ -32,7 +32,7 @@ class DiaryDetailAPIView(APIView):
 
     # 디테일 조회
     def get(self, request, pk):
-        diary = self.get_diary(pk, request.user)  # diary pk에 해당하는 게시글 가져오기
+        diary = self.get_diary(pk, request.user) 
         serializer = DiarySerializer(diary)
         return Response(serializer.data)
 

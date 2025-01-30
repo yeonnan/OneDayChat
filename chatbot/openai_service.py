@@ -13,7 +13,8 @@ def summarize_chat_history(chat_history, user):
     summary_messages = [
         {
             "role": "system",
-            "content": ("너는 대화 내용을 요약하는 비서야. 대화의 핵심 내용을 간결하고 명확하게 정리해" "간단한 인사말('안녕', '잘지냈어?')은 제외하고 주요 질문과 답변만 요약해"),
+            "content": ("너는 대화 내용을 요약하는 비서야. 대화의 핵심 내용을 간결하고 명확하게 정리해" 
+                        "간단한 인사말('안녕', '잘지냈어?')은 제외하고 주요 질문과 답변만 요약해"),
         }
     ]
     for msg in chat_history:

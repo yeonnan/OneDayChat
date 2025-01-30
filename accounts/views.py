@@ -42,7 +42,7 @@ class ChangePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     # 비밀번호 변경
-    def post(self, request, pk):
+    def put(self, request, pk):
         old_password = request.data.get("old_password")
         new_password = request.data.get("new_password")
 
