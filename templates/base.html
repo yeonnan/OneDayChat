@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Day Chat</title>
+    <title>{% block content %}One Day Chat{% endblock %}</title>
     <!-- Axios CDN -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="{% static "css/base.css" %}">
@@ -16,12 +16,18 @@
 
 </head>
 <body>
+    <header>
+        <nav>
+            <a href="{% url 'home' %}" class="></a>
+        </nav>
+    </header>
     
 
-
-    {% block content%}
-    
-    {% endblock content%}
+    <main>
+        {% block content%}
+        
+        {% endblock content%}
+    </main>
 
 </body>
 </html>

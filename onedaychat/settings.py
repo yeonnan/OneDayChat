@@ -105,16 +105,24 @@ REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES":
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=15),
+    "ROTATE_REFRESH_TOKENS": False,     # Refresh 시 Refresh Token 재발급 여부
+    "BLACKLIST_AFTER_ROTATION": True,      # 로그아웃 시 블랙리스트 사용
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+# 세션 만료 시간 
+SESSION_COOKIE_AGE = 60 * 30  
 
 
-# runserver로 테스트 - sqlite
+# CSRF 설정
+CSRF_COOKIE_HTTPONLY = False   # CSRF 토큰은 JS에서 접근해야 하므로 False
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000'] 
+
+
+# runserver로 테스트 - sqlite``
 
 DATABASES = {
     "default": {
