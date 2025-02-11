@@ -99,7 +99,8 @@ WSGI_APPLICATION = "onedaychat.wsgi.application"
 
 
 REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": 
-                ("rest_framework_simplejwt.authentication.JWTAuthentication",)
+                # ("rest_framework_simplejwt.authentication.JWTAuthentication",),
+                ('accounts.authentications.CookieJWTAuthentication',),
                 }
 
 
