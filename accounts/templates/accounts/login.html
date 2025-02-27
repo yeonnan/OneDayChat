@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+<script src="{% static 'accounts/js/login.js' %}"></script>
+{% endblock head %}
+
+{% block content %}
+<main class="login-container">
+    <h1>로그인</h1>
+    <form class="login-form" method="POST">
+        <input type="text" placeholder="아이디" name="username" />
+        <input type="password" placeholder="비밀번호" name="password" />
+
+        <div class="button-group">
+            <button type="submit" class="login-btn">로그인</button>
+            <button type="button" class="signup-btn">회원가입</button>
+        </div>
+    </form>
+</main>
+{% endblock content %}

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +16,9 @@ class ChatBotAPIView(APIView):
     # 사용자와 오늘 날짜를 기준으로 세션 가져오기 or 생성
     def get_or_create_chat_session(self, user):
         today = timezone.localdate()
-        session, created = ChatSession.objects.get_or_create(user=user, created_at__date=today)  # 세션 생성 or 가져오기
+        session, created = ChatSession.objects.get_or_create(
+            user=user, 
+            created_at__date=today)  # 세션 생성 or 가져오기
         return session
 
     def post(self, request):
@@ -85,6 +88,7 @@ class ChatBotAPIView(APIView):
             return Response(
                 {
                     "response": response_content,
+                    "session_id" : session.id,      
                     "새로운 채팅방 세션 생성 시간": f"{session_time_elapsed:.4f} 초",  # 세션을 생성하거나 기존 세션을 불러오는 데 걸리는 시간
                     "DB에서 대화기록 불러오는 시간": f"{fetch_time_elapsed:.4f} 초",  # 이전 대화 기록을 DB에서 가져오는데 걸리는 시간
                     "API 호출 시간": f"{api_time_elapsed:.4f} 초",  # OpenAI LLM에 요청을 보내고 응답을 받는 데 걸리는 시간
@@ -93,6 +97,9 @@ class ChatBotAPIView(APIView):
             )
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
+class ChatBotPageView(TemplateView):
+    template_name = "chatbot/chatbot.html"
 
 
 class CreateDiaryAPIView(APIView):

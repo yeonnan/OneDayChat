@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from accounts.serializers import UserSerializer, ChangePasswordSerializer
@@ -13,7 +14,12 @@ TokenObtainPairView : access + refresh token 토큰 2개를 발급하는 뷰. js
 TokenRefreshView : 이미 발급된 refresh token을 사용해 새로운 access token 재발급 해주는 뷰
 '''
 
+class UserInfoAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user = request.user
+        return Response({"username": user.username},status=200)
 
 class CookieTokenObtainPairView(TokenObtainPairView):
     # simpleJWT의 TokenObtainPairView를 상속받아 access, refresh 토큰을 response body + httponly 쿠키로 반환
@@ -25,10 +31,12 @@ class CookieTokenObtainPairView(TokenObtainPairView):
         # 유효하면 refresh, access 토큰 꺼내기
         refresh = serializer.validated_data['refresh']
         access = serializer.validated_data['access']
+        user = serializer.user      # 로그인된 user의 pk 꺼내기
 
         # 응답 데이터
         response = Response({
             'message' : '로그인 성공',
+            'user_id' : user.id,      # 로그인된 user의 pk 꺼내기
             'access_token' : str(access),       # 디버깅
             'refresh_token' : str(refresh),     # 디버깅
             }, status=200)
@@ -39,17 +47,19 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             value=str(access),
             httponly=True,
             secure=False,
-            samesite='None'
+            # samesite='None'
         )
         response.set_cookie(
             key='refresh_token',
             value=str(refresh),
             httponly=True,
             secure=False,
-            samesite='None'
+            # samesite='None'
         )
         return response
 
+class LoginPageView(TemplateView):
+    template_name = "accounts/login.html"
 
 class CookieTokenRefreshView(TokenRefreshView):
     # simpleJWT의 TokenRefreshView를 상속받아 쿠키의 refresh token을 사용해 access token 재발급
@@ -86,7 +96,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             value=str(access_token),
             httponly=True,
             secure=False,
-            samesite='None'
+            # samesite='None'
         )
         return response
 
@@ -100,6 +110,8 @@ class SignupAPIView(APIView):
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
 
+class SignupPageView(TemplateView):
+    template_name = "accounts/signup.html"
 
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -150,6 +162,8 @@ class ChangePasswordAPIView(APIView):
         request.user.save()
         return Response({"message": "비밀번호가 변경되었습니다."}, status=200)
 
+class ChangePasswordPageView(TemplateView):
+    template_name = "accounts/change_password.html"
 
 class DeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -163,3 +177,6 @@ class DeleteAPIView(APIView):
 
         user.delete()
         return Response(status=200)
+    
+class DeletePageView(TemplateView):
+    template_name = "accounts/delete.html"

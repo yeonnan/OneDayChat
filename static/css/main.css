@@ -1,0 +1,31 @@
+  /* 메인 영역 중앙 정렬 */
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 80px); /* 헤더 높이를 고려해 전체 화면 높이에서 빼줌 */
+  }
+  
+  /* 제목 스타일 */
+  .main-container h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* 버튼 스타일 */
+  .start-btn {
+    background-color: #FFFFFF;
+    color: #3A3A3A;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .start-btn:hover {
+    background-color: #dddddd;
+  }
+  

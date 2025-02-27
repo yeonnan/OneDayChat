@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'accounts/css/signup.css' %}">
+<script src="{% static 'accounts/js/signup.js' %}"></script>
+{% endblock head %}
+
+{% block content %}
+<main class="signup-container">
+    <h1>회원가입</h1>
+    <form class="signup-form" method="POST">
+        <input type="text" placeholder="아이디" name="username" />
+        <input type="email" placeholder="이메일" name="email" />
+        <input type="password" placeholder="비밀번호" name="password" />
+        <input type="text" placeholder="닉네임" name="nickname" />
+        <button type="submit" class="signup-btn">회원가입</button>
+    </form>
+</main>
+{% endblock content %}

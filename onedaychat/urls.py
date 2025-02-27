@@ -2,13 +2,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/accounts/", include("accounts.urls")),
-    path("api/chatbot/", include("chatbot.urls")),
-    path("api/diary/", include("diary.urls")),
+    path("main/", views.main),
+    path("accounts/", include("accounts.urls")),
+    path("chatbot/", include("chatbot.urls")),
+    path("diary/", include("diary.urls")),
 ]
 
 # 로컬 이미지 (debug) - setting 연결

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'diary/css/edit_diary.css' %}">
+<script src="{% static 'diary/js/edit_diary.js' %}"></script>
+{% endblock head %}
+
+{% block content %}
+<main class="diary-edit-container">
+  <h1>One Day Chat</h1>
+  
+  <!-- 둥근 모서리 박스 (기존 diary_detail과 동일한 레이아웃) -->
+  <div class="diary-box">
+    <!-- 상단 영역 (왼쪽: 취소/삭제/수정 등, 오른쪽: 날짜) -->
+    <div class="diary-header">
+      <div class="diary-actions">
+        <button class="cancel-btn">취소</button>
+      </div>
+      <span class="diary-date"></span>
+    </div>
+    
+    <!-- 편집 영역 -->
+    <div class="diary-edit-content">
+    <!-- 본문 수정 (textarea 사용) -->
+      <textarea class="content-textarea">
+      </textarea>
+    </div>
+
+    <!-- 오른쪽 하단 수정완료 버튼 -->
+    <button class="edit-submit-btn">수정</button>
+  </div>
+</main>
+{% endblock content %}

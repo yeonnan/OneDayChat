@@ -1,33 +1,38 @@
-{% load static %}       // base.js, css를 html에 로드할 수 있는 django 로직
+{% load static %} 
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block content %}One Day Chat{% endblock %}</title>
+    <title>One Day Chat</title>
     <!-- Axios CDN -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="{% static "css/base.css" %}">
-
-    {% block head %}{% endblock head %}
-
-    <script src="{% static "js/base.js" %}"></script>
-
+    
+    <!-- 연결할 CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    
+    {% block head %}
+    {% endblock head %}
+    
+    <script src="{% static 'js/base.js' %}"></script>
 </head>
+
 <body>
+    <!-- 상단 네비게이션 바 -->
     <header>
-        <nav>
-            <a href="{% url 'home' %}" class="></a>
+        <nav class="navbar">
+            <ul class="nav-left">
+                <li><a href="/main/">홈으로</a></li>
+            </ul>
+            <ul class="nav-right">
+                <li><button id="login-logout-link" type="button"></button></li>
+                <li><button id="signup-profile-link" type="button"></button></li>
+            </ul>
         </nav>
     </header>
-    
+    {% block content %}
 
-    <main>
-        {% block content%}
-        
-        {% endblock content%}
-    </main>
-
+    {% endblock content %}
 </body>
 </html>

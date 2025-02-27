@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'diary/css/diary_detail.css' %}">
+<script src="{% static 'diary/js/diary_detail.js' %}"></script>
+{% endblock head %}
+
+{% block content %}
+<main class="diary-detail-container">
+  <h1>One Day Chat</h1>
+  
+  <div class="diary-box">
+    <div class="diary-header">
+      <div class="diary-actions">
+        <button class="edit-btn">수정</button>
+        <button class="delete-btn">삭제</button>
+      </div>
+      <span class="diary-date"></span>
+    </div>
+    <div class="diary-content">
+      <p class="diary-text"></p>
+    </div>
+  </div>
+</main>
+{% endblock content %}

@@ -44,36 +44,42 @@ axios.interceptors.response.use(
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    const deleteBtn = document.getElementById('delete-btn');
     const loginLogoutLink = document.getElementById('login-logout-link');
     const signupProfileLink = document.getElementById('signup-profile-link');
 
     axios.get('/accounts/userinfo/')
         .then(response => {
+            const userId = sessionStorage.getItem("user_id");
+            deleteBtn.textContent = '회원 탈퇴';
+            deleteBtn.style.cursor = 'pointer';
+            deleteBtn.addEventListener('click', function() {
+              window.location.href = `/accounts/profile/${userId}/delete`;
+            })
             loginLogoutLink.textContent = '로그아웃';
             loginLogoutLink.style.cursor = 'pointer';
             loginLogoutLink.addEventListener('click', function (e) {
                 e.preventDefault();
                 logout();
             });
-            signupProfileLink.textContent = '프로필';
+            signupProfileLink.textContent = '비밀번호 변경';
             signupProfileLink.style.cursor = 'pointer';
             signupProfileLink.addEventListener('click', function() {
-              window.location.href = "/diary/";
-            });
+              window.location.href = `/accounts/profile/${userId}/change-password/`;
+            })
+            axios.get('/diary/api/')
+                .then(res => {
+                    const diaries = res.data
+                    displayDiary(diaries);
+                })
+                .catch(err => {
+                    return;
+                })
         })
         .catch(error => {
-            loginLogoutLink.textContent = '로그인';
-            loginLogoutLink.style.cursor = 'pointer';
-            loginLogoutLink.addEventListener('click', function() {
-                window.location.href = "/accounts/login/";
-            });
-            signupProfileLink.textContent = '회원가입';
-            signupProfileLink.style.cursor = 'pointer';
-            signupProfileLink.addEventListener('click', function() {
-                window.location.href = "/accounts/signup/";
+            window.location.href = '/accounts/login/';
             });
         });
-});
 
 function logout() {
     axios.post('/accounts/logout/')
@@ -81,6 +87,32 @@ function logout() {
             window.location.href = "/main/";
         })
         .catch(error => {
-          return;
+            return;
         });
+}
+
+function displayDiary(diaries) {
+  const diaryGrid = document.querySelector('.diary-grid');
+  diaryGrid.innerHTML = '';
+
+  diaries.forEach(diary => {
+      // diary item을 감싸는 div 생성
+      const diaryElement = document.createElement('div');
+      diaryElement.classList.add('diary-item');
+
+      // 날짜 표시 예시 (YYYY.MM.DD 형태)
+      const dateText = diary.created_at.substring(0, 10).replace(/-/g, ".");
+      diaryElement.textContent = dateText;
+
+      // CSS로 포인터로 표시(마우스 올리면 손가락 커서)
+      diaryElement.style.cursor = 'pointer';
+
+      // 클릭하면 /diary/<diary.id>/ 로 이동
+      diaryElement.addEventListener('click', function() {
+          window.location.href = `/diary/${diary.id}/`;
+      });
+
+      // .diary-grid 내부에 삽입
+      diaryGrid.appendChild(diaryElement);
+  });
 }

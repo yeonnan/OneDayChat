@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'chatbot/css/chatbot.css' %}">
+<script src="{% static 'chatbot/js/chatbot.js' %}"></script>
+{% endblock head %}
+
+{% block content %}
+<main class="chat-container">
+  <h1>One Day Chat</h1>
+  
+  <!-- 우측 상단에 일기 생성 버튼 -->
+  <button class="create-diary-btn">일기 생성</button>
+
+  <!-- 실제 채팅이 표시될 영역 -->
+  <div class="chat-box" data-session-id="{{ session.id }}">
+  </div>
+
+  <!-- 채팅 입력 영역 -->
+  <div class="chat-input-container">
+    <input type="text" class="chat-input" placeholder="채팅을 입력해주세요." />
+    <button class="plus-btn">+</button>
+    <button class="send-btn">전송</button>
+  </div>
+</main>
+{% endblock content %}

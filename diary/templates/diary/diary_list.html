@@ -1,0 +1,51 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Day Chat</title>
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>   
+    <!-- 연결할 CSS -->
+    <link rel="stylesheet" href="{% static 'diary/css/diary_list.css' %}">
+    <script src="{% static 'diary/js/diary_list.js' %}"></script>
+</head>
+<body>
+  <!-- 상단 네비게이션 바 -->
+  <header>
+    <nav class="navbar">
+      <ul class="nav-left">
+        <li><a href="/main/">홈으로</a></li>
+      </ul>
+      <ul class="nav-right">
+        <li><button id="delete-btn" type="button"></button></li>
+        <li><button id="login-logout-link" type="button"></button></li>
+        <li><button id="signup-profile-link" type="button"></button></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <main class="profile-container">
+    <h1>One Day Chat</h1>
+  
+    <!-- 다이어리 목록 (3열 그리드 예시) -->
+    <section class="diary-grid">
+      <!-- 예시로 9개의 다이어리를 표기 -->
+      <!-- 실제로는 서버에서 for loop로 반복 생성 -->
+    </section>
+  
+    <!-- 페이지네이션 -->
+    <nav class="pagination">
+      <ul>
+        <li><a href="#">1</a></li>
+        <li><a href="#">2</a></li>
+        <li><a href="#">3</a></li>
+        <li><a href="#">4</a></li>
+        <li><a href="#">5</a></li>
+      </ul>
+    </nav>
+  </main>
+</body>
+</html>

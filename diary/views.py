@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -19,6 +20,9 @@ class DiaryListAPIView(APIView):
 
         serializer = DiarySerializer(diaries, many=True)
         return Response(serializer.data)
+
+class DiaryListPageView(TemplateView):
+    template_name = "diary/diary_list.html"
 
 
 class DiaryDetailAPIView(APIView):
@@ -49,3 +53,9 @@ class DiaryDetailAPIView(APIView):
         diary = self.get_diary(pk, request.user)
         diary.delete()
         return Response({"message": "삭제 완료"}, status=200)
+
+class DiaryDetailPageView(TemplateView):
+    template_name = "diary/diary_detail.html"
+
+class EditDiaryPageView(TemplateView):
+    template_name = "diary/edit_diary.html"

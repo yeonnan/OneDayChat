@@ -1,0 +1,35 @@
+/* 공통 스타일 초기화 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* 바디 기본 설정 */
+  body {
+    background-color: #3A3A3A; /* 어두운 배경색 */
+    color: #FFFFFF;           /* 글자는 흰색 */
+    font-family: sans-serif;
+  }
+  
+  /* 네비게이션 바 스타일 */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+  }
+  
+  .nav-left,
+  .nav-right {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .nav-left a,
+  .nav-right a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 1rem;
+  }

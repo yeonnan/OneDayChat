@@ -1,0 +1,51 @@
+/* 중앙 정렬, 상단 navbar 높이를 뺀 화면 높이 활용 */
+.delete-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 80px);
+  }
+  
+  
+  /* 폼 기본 레이아웃 */
+  .delete-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;  /* 각 요소 간격 */
+  }
+  
+  /* 텍스트 입력 필드 스타일 */
+  .delete-form input {
+    width: 300px;
+    padding: 1rem;
+    border-radius: 30px; /* 둥근 모서리(타원형) */
+    border: none;
+    outline: none;
+    font-size: 1rem;
+  }
+  
+  /* 버튼 그룹: 오른쪽 정렬 + 세로 배치 (원하는 레이아웃에 맞게 수정) */
+  .button-group {
+    display: flex;
+    flex-direction: column; /* 세로로 쌓이게 */
+    align-items: flex-end;  /* 오른쪽 정렬 */
+    gap: 0.5rem;            /* 버튼 간 간격 */
+  }
+  
+  /* 로그인/회원가입 버튼 공통 스타일 */
+  .delete-btn {
+    background-color: #fff;
+    color: #3A3A3A;
+    border: none;
+    border-radius: 30px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .login-btn:hover {
+    background-color: #ddd;
+  }
+  
