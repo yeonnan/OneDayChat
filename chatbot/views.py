@@ -125,15 +125,25 @@ class CreateDiaryAPIView(APIView):
             return Response({"error": str(e)}, status=500)
 
         # 4. 다이어리 저장
-        session_date = session.created_at.date()
-        title = f"{session_date}"
+        existing_diary = Diary.objects.filter(session=session, user=request.user).first()
 
-        diary = Diary.objects.create(
-            user=request.user,
-            session=session,
-            title=title,
-            content=diary_content,
-        )
+        if existing_diary:
+            # 작성된 일기가 있으면 해당 일기 업데이트
+            existing_diary.content += f"{diary_content}"
+            existing_diary.save()
+            diary = existing_diary
+
+        else:
+            # 없다면 새로 생성
+            session_date = session.created_at.date()
+            title = f"{session_date}"
+
+            diary = Diary.objects.create(
+                user=request.user,
+                session=session,
+                title=title,
+                content=diary_content,
+            )
 
         # 5. 결과 반환
         return Response({
