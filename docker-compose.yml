@@ -47,6 +47,30 @@ services:
     ports:
       - "6379:6379"
 
+  celery:
+    build: .
+    command: celery -A onedaychat worker -l INFO
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - redis
+      - db
+
+  celery_beat:
+    build: .
+    command: celery -A onedaychat beat -l INFO
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - redis
+      - db
+
 volumes:
   postgres_data:
   redis_data:

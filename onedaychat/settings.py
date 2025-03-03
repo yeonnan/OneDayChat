@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "django_celery_beat",
     "accounts",
     "chatbot",
     "diary",
@@ -113,27 +114,60 @@ CSRF_COOKIE_HTTPONLY = False   # CSRF 토큰은 JS에서 접근해야 하므로 
 CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000'] 
 
 
-# runserver로 테스트 - sqlite``
+# runserver로 테스트 - sqlite
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "db"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT", 5432),
+        "ATOMIC_REQUESTS": True,
     }
 }
 
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("POSTGRES_DB", "db"),
-#         "USER": os.getenv("POSTGRES_USER"),
-#         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-#         "HOST": os.getenv("POSTGRES_HOST"),
-#         "PORT": os.getenv("POSTGRES_PORT", 5432),
-#         "ATOMIC_REQUESTS": True,
-#     }
-# }
+# celery 
+# CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"  # Redis 서버 주소
+# CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"  # Redis 사용
+
+# docker-compose
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+# timezone
+CELERY_TIMEZONE = "Asia/Seoul"
+CELERY_ENABLE_UTC = False
+
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    # 테스트용 3분 간격으로 무한 반복
+    # "create-diaries-every-3-min": {
+    #     "task": "chatbot.tasks.create_daily_diaries",
+    #     "schedule": 180,  
+    # },
+
+    "create-diaries-at-23-59": {
+        "task": "chatbot.tasks.create_daily_diaries",
+        "schedule": crontab(hour=23, minute=59),
+    },
+}
+
 
 
 # Password validation
