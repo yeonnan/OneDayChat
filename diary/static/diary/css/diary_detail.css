@@ -3,29 +3,24 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: calc(100vh - 80px); /* 상단 바 높이를 뺀 값 */
+    min-height: calc(100vh - 80px);
     padding: 2rem;
   }
   
-  /* 큰 제목 (흰 글자, 어두운 배경 전제) */
+  /* 큰 제목 */
   .diary-detail-container h1 {
     font-size: 3rem;
     color: #ffffff;
     margin-bottom: 2rem;
   }
   
-  /* 둥근 모서리 흰색 박스 */
   .diary-box {
     background-color: #ffffff;
     border-radius: 30px;
     width: 80%;
     padding: 2rem;
-    /* 그림자 등 효과 필요 시 추가
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    */
   }
   
-  /* 상단 영역: "수정 삭제" + 날짜 */
   .diary-header {
     display: flex;
     justify-content: space-between;
@@ -33,7 +28,7 @@
     margin-bottom: 1rem;
   }
   
-  /* 수정/삭제 버튼 묶음 */
+  /* 수정, 삭제 버튼 */
   .diary-actions {
     display: flex;
     gap: 1rem;
@@ -53,7 +48,7 @@
     color: #666666;
   }
   
-  /* 날짜 스타일 (오른쪽 상단) */
+  /* 날짜 스타일 */
   .diary-date {
     font-size: 1rem;
     color: #aaaaaa;
@@ -70,7 +65,7 @@
   /* 일기 이미지 */
   .diary-image {
     display: block;
-    max-width: 200px;   /* 이미지를 적절히 제한 */
-    margin: 1rem auto;  /* 가운데 정렬 */
+    max-width: 200px; 
+    margin: 1rem auto;
   }
   

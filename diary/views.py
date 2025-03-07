@@ -38,15 +38,29 @@ class DiaryDetailAPIView(APIView):
     def get(self, request, pk):
         diary = self.get_diary(pk, request.user) 
         serializer = DiarySerializer(diary)
-        return Response(serializer.data)
+
+        data = dict(serializer.data)
+        if diary.image:
+            full_url = request.build_absolute_uri(diary.image.image.url)
+            data["image_url"] = full_url
+        else:
+            data["image_url"] = None
+
+        return Response(data)
 
     # 다이어리 수정
     def put(self, request, pk):
         diary = self.get_diary(pk, request.user)
+
         serializer = DiarySerializer(diary, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            data = dict(serializer.data)
+            if diary.image:
+                data["image_url"] = full_url = request.build_absolute_uri(diary.image.image.url)
+            else:
+                data["image_url"] = None
+            return Response(data)
 
     # 다이어리 삭제
     def delete(self, request, pk):

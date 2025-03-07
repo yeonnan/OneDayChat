@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
-from chatbot.models import ChatSession, ChatBot
+from chatbot.models import ChatSession, ChatBot, Image
 from diary.models import Diary
 import time
 from .openai_service import summarize_chat_history, chatbot_response, create_diary
@@ -152,3 +152,23 @@ class CreateDiaryAPIView(APIView):
             "diary": diary_content
             }
         )
+
+
+class ImageUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # 파일 받기
+        uploaded_file = request.FILES.get('image', None)
+        if not uploaded_file:
+            return Response({"error": "No file uploaded"}, status=400)
+        
+        # Image 모델에 저장
+        img_instance = Image.objects.create(image=uploaded_file)
+        
+        image_url = request.build_absolute_uri(img_instance.image.url)
+        
+        return Response({
+            "message": "이미지 업로드 성공",
+            "image_url": image_url
+        }, status=200)

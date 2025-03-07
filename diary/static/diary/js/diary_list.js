@@ -100,7 +100,7 @@ function displayDiary(diaries) {
       const diaryElement = document.createElement('div');
       diaryElement.classList.add('diary-item');
 
-      // 날짜 표시 예시 (YYYY.MM.DD 형태)
+      // 날짜 표시 (YYYY.MM.DD 형태)
       const dateText = diary.created_at.substring(0, 10).replace(/-/g, ".");
       diaryElement.textContent = dateText;
 

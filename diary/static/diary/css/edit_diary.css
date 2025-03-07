@@ -1,31 +1,28 @@
-/* 편집 페이지 전용 CSS */
-
-/* 전체 컨테이너 (중앙 정렬) */
 .diary-edit-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: calc(100vh - 80px); /* 상단 바 높이 제외 */
+    min-height: calc(100vh - 80px);
     padding: 2rem;
   }
   
   /* 큰 제목 */
   .diary-edit-container h1 {
     font-size: 3rem;
-    color: #ffffff; /* 어두운 배경에서 흰 글자 */
+    color: #ffffff; 
     margin-bottom: 2rem;
   }
   
-  /* 흰색 박스 (기존과 동일 구조) */
+  /* 흰색 박스 */
   .diary-box {
     background-color: #ffffff;
     border-radius: 30px;
     width: 80%;
     padding: 2rem;
-    position: relative;  /* 자식의 위치제어(절대배치) 용도 */
+    position: relative; 
   }
   
-  /* 상단 (왼쪽버튼들 + 날짜) */
+  /* 상단 */
   .diary-header {
     display: flex;
     justify-content: space-between;
@@ -65,11 +62,11 @@
     gap: 1.5rem;
   }
   
-  /* 내용 textarea */
+  /* 내용 */
   .content-textarea {
     width: 100%;
     height: 200px;
-    resize: vertical; /* 세로 방향 크기 조절 가능 */
+    resize: vertical; 
     border: 1px solid #ccc;
     border-radius: 6px;
     padding: 0.6rem;
@@ -78,7 +75,7 @@
     line-height: 1.4;
   }
   
-  /* 수정완료 버튼: 오른쪽 하단 배치 */
+  /* 수정완료 버튼 */
   .edit-submit-btn {
     position: absolute;
     bottom: 2rem;

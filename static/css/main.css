@@ -4,7 +4,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: calc(100vh - 80px); /* 헤더 높이를 고려해 전체 화면 높이에서 빼줌 */
+    height: calc(100vh - 80px); 
   }
   
   /* 제목 스타일 */

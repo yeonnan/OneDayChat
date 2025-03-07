@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     const diaryId = pathParts[1];
     if (!diaryId) {
         return;
-      }
+        }
 
     const diaryDateSpan = document.querySelector(".diary-date");
     const diaryTextarea = document.querySelector(".content-textarea");

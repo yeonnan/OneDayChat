@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     const diaryId = pathParts[1];
     if (!diaryId) {
         return;
-      }
+        }
     console.log("Current diaryId:", diaryId);
 
     const diaryDateSpan = document.querySelector(".diary-date");
@@ -15,16 +15,30 @@ document.addEventListener("DOMContentLoaded", async function() {
         const response = await axios.get(`/diary/api/${diaryId}/`);
         const diaryData = response.data;
 
+        // 1. 날짜 표시
         if (diaryData.created_at) {
             const dateOnly = diaryData.created_at.substring(0, 10).replace(/-/g, ".");
             diaryDateSpan.textContent = dateOnly;
         }
-
+        
+        // 2. 본문 표시
         diaryTextParagraph.textContent = diaryData.content;
-    } catch (error) {
-        return;
-    };
 
+        // 3. 이미지 표시
+        if (diaryData.image_url) {
+            const diaryContentDiv = document.querySelector(".diary-content");
+            const imgEl = document.createElement("img");
+            imgEl.src = diaryData.image_url;
+            imgEl.alt = "다이어리에 첨부된 이미지";
+            imgEl.classList.add("diary-image"); 
+            diaryContentDiv.appendChild(imgEl);
+        }
+    } catch (error) {
+        console.error("일기 상세 조회 에러:", error);
+        return;
+    }
+
+    // 수정버튼
     editBtn.style.cursor = 'pointer';
     editBtn.addEventListener("click", function() {
         window.location.href = `/diary/${diaryId}/edit/`;
@@ -43,6 +57,6 @@ function diaryDel(diaryId) {
             window.location.href = "/diary/";
         })
         .catch(err => {
-            return;
+            console.error("일기 삭제 에러:", err);
         });
 }

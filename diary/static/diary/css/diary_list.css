@@ -7,8 +7,8 @@
   
   /* 바디 기본 설정 */
   body {
-    background-color: #3A3A3A; /* 어두운 배경색 */
-    color: #FFFFFF;           /* 글자는 흰색 */
+    background-color: #3A3A3A;
+    color: #FFFFFF;           
     font-family: sans-serif;
   }
   
@@ -41,7 +41,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* 상단 navbar 높이 고려하여 중간 정렬 */
     min-height: calc(100vh - 80px);
     margin: 0 auto;
     padding: 2rem;
@@ -51,7 +50,7 @@
   .profile-container h1 {
     font-size: 3rem;
     margin-bottom: 2rem;
-    color: #FFFFFF; /* 어두운 배경 위에 흰 글자 */
+    color: #FFFFFF; 
   }
   
   /* 다이어리 목록을 3열 그리드로 배치 */
@@ -59,14 +58,14 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3열 */
     gap: 1.5rem; /* 카드 사이 간격 */
-    width: 70%;  /* 너비는 적당히 조절 (예: 70%) */
+    width: 70%;  /* 너비 */
     margin-bottom: 2rem;
   }
   
   /* 각 다이어리 아이템 스타일 */
   .diary-item {
-    background-color: #eeeeee; /* 연한 회색 배경 */
-    color: #555555;            /* 짙은 회색 글자 */
+    background-color: #eeeeee; 
+    color: #555555;         
     font-size: 1.2rem;
     text-align: center;
     border-radius: 8px;
@@ -76,7 +75,7 @@
   }
   
   .diary-item:hover {
-    background-color: #dddddd; /* 살짝 진해지도록 */
+    background-color: #dddddd; 
   }
   
   /* 페이지네이션 */
@@ -94,10 +93,10 @@
   
   .pagination a {
     text-decoration: none;
-    color: #ffffff; /* 어두운 배경에 흰색 or 원하는 색 */
+    color: #ffffff; 
     transition: color 0.2s;
   }
   
   .pagination a:hover {
-    color: #dddddd; /* 살짝 밝게 */
+    color: #dddddd;
   }
