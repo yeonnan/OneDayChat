@@ -16,10 +16,13 @@ class ChatBotAPIView(APIView):
     # 사용자와 오늘 날짜를 기준으로 세션 가져오기 or 생성
     def get_or_create_chat_session(self, user):
         today = timezone.localdate()
-        session, created = ChatSession.objects.get_or_create(
+        session = ChatSession.objects.filter(
             user=user, 
-            created_at__date=today)  # 세션 생성 or 가져오기
-        return session
+            created_at__date=today).first() 
+        if session:
+            return session
+        # 없으면 새로 생성
+        return ChatSession.objects.create(user=user)
 
     def post(self, request):
         # 📌 전체 처리 시간 측정 시작
@@ -29,14 +32,22 @@ class ChatBotAPIView(APIView):
         user_message = request.data.get("message")
         if not user_message:
             return Response({"error": "사용자 메세지가 비어있습니다."}, status=400)
+        image_id = request.data.get("image_id", None)
 
         # 2. 사용자와 연결된 세션 가져오기
         start_time_session = time.perf_counter()  # 📌 get_or 메서드에서 db에서 세션 정보를 가져오는 시간
         session = self.get_or_create_chat_session(request.user)
         session_time_elapsed = time.perf_counter() - start_time_session  # 📌 세션 생성, 불러오기 시간 계산
 
+        image_instance = None
+        if image_id is not None:
+            try:
+                image_instance = Image.objects.get(id=image_id)
+            except Image.DoesNotExist:
+                pass
+
         # 사용자 메세지 저장
-        ChatBot.objects.create(user=request.user, session=session, message_text=user_message)
+        ChatBot.objects.create(user=request.user, session=session, message_text=user_message, image=image_instance)
 
         # 4. 요약용 메세지 카운트 증가 및 체크
         session.user_message_count_since_summary += 1
@@ -55,7 +66,7 @@ class ChatBotAPIView(APIView):
                 ChatBot.objects.create(
                     user=session.user, 
                     session=session, 
-                    message_text=f"[대화 요약]\n{summary_content}"
+                    message_text=f"[대화 요약]\n{summary_content}",
                     )
 
                 # 카운트 리셋
@@ -165,10 +176,11 @@ class ImageUploadView(APIView):
         
         # Image 모델에 저장
         img_instance = Image.objects.create(image=uploaded_file)
-        
+        image_id = img_instance.id
         image_url = request.build_absolute_uri(img_instance.image.url)
         
         return Response({
             "message": "이미지 업로드 성공",
+            "image_id": image_id,
             "image_url": image_url
         }, status=200)

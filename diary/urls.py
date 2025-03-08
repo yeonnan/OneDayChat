@@ -8,4 +8,5 @@ urlpatterns = [
     path("api/<int:pk>/", views.DiaryDetailAPIView.as_view(), name="diary-detail"),
     path("<int:pk>/", views.DiaryDetailPageView.as_view(), name="T_diary_detail"),
     path("<int:pk>/edit/", views.EditDiaryPageView.as_view(), name="T_edit-diary"),
+    path("api/<int:pk>/image/", views.DiaryImageDeleteAPIView.as_view(), name="diary-image-delete"),
 ]

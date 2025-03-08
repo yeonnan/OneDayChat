@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     try {
         const response = await axios.get(`/diary/api/${diaryId}/`);
         const diaryData = response.data;
+        console.log("data: ", diaryData);
 
         // 1. 날짜 표시
         if (diaryData.created_at) {
@@ -24,15 +25,28 @@ document.addEventListener("DOMContentLoaded", async function() {
         // 2. 본문 표시
         diaryTextParagraph.textContent = diaryData.content;
 
-        // 3. 이미지 표시
-        if (diaryData.image_url) {
+        if (diaryData.diary_image) {
             const diaryContentDiv = document.querySelector(".diary-content");
+            const { image_id, image_url } = diaryData.diary_image;
+        
             const imgEl = document.createElement("img");
-            imgEl.src = diaryData.image_url;
+            imgEl.src = image_url;
             imgEl.alt = "다이어리에 첨부된 이미지";
             imgEl.classList.add("diary-image"); 
             diaryContentDiv.appendChild(imgEl);
         }
+        
+          // 4. 챗봇 대화 중 업로드된 이미지들
+            if (diaryData.chat_images && diaryData.chat_images.length > 0) {
+            const diaryContentDiv = document.querySelector(".diary-content");
+            diaryData.chat_images.forEach(imgObj => {
+                const imgEl = document.createElement("img");
+                imgEl.src = imgObj.image_url;
+                imgEl.alt = "대화 중 업로드된 이미지";
+                imgEl.classList.add("diary-image");
+                diaryContentDiv.appendChild(imgEl);
+                });
+            }
     } catch (error) {
         console.error("일기 상세 조회 에러:", error);
         return;
