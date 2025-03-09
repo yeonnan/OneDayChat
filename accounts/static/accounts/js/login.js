@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const userId = response.data.user_id;
 
             sessionStorage.setItem("user_id", userId);
-            window.location.href = "/main/";
+            window.location.href = "/";
         } catch (err) {
             return;
         }

@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     password: password
                 }
             });
-            window.location.href = "/main/";
+            window.location.href = "/";
         } catch (error) {
             return;
         }

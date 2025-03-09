@@ -21,7 +21,7 @@ axios.interceptors.response.use(
       // 3) 현재 경로 확인
       const currentPath = window.location.pathname;
       if (
-        currentPath === "/main/" ||
+        currentPath === "/" ||
         currentPath === "/accounts/login/" ||
         currentPath === "/accounts/signup/"
       ) {
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function logout() {
     axios.post('/accounts/logout/')
         .then(response => {
-            window.location.href = "/main/";
+            window.location.href = "/";
         })
         .catch(error => {
             return;
