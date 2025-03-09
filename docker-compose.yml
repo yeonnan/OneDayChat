@@ -4,6 +4,8 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app    # 현재 디렉토리를 컨테이너 내부의 /app에 연결
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
     ports:
       - "8000:8000"     # 호스트와 컨테이너 포트 연결
     env_file:
@@ -19,6 +21,8 @@ services:
       - "443:443"       # https를 열어줄 때만 사용하는 것
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
       # https 상태
       - /etc/letsencrypt:/etc/letsencrypt
       - ./var/www/certbot:/var/www/certbot
