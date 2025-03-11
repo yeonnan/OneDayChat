@@ -8,6 +8,7 @@ from chatbot.models import ChatSession, ChatBot, Image
 from diary.models import Diary
 import time
 from .openai_service import summarize_chat_history, chatbot_response, create_diary
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class ChatBotAPIView(APIView):
@@ -109,6 +110,7 @@ class ChatBotAPIView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
         
+        
 class ChatBotPageView(TemplateView):
     template_name = "chatbot/chatbot.html"
 
@@ -167,6 +169,7 @@ class CreateDiaryAPIView(APIView):
 
 class ImageUploadView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request):
         # 파일 받기
@@ -174,11 +177,13 @@ class ImageUploadView(APIView):
         if not uploaded_file:
             return Response({"error": "No file uploaded"}, status=400)
         
-        # Image 모델에 저장
+        # 이미지 s3에 업로드
         img_instance = Image.objects.create(image=uploaded_file)
+
+        # 업로드된 s3 이미지 url
         image_id = img_instance.id
         image_url = request.build_absolute_uri(img_instance.image.url)
-        
+
         return Response({
             "message": "이미지 업로드 성공",
             "image_id": image_id,

@@ -4,7 +4,8 @@ from django.utils import timezone
 
 
 class Image(models.Model):
-    image = models.ImageField(upload_to="images/")  # 이미지 파일이 MEDIA_ROOT/images/ 경로에 저장
+    # image = models.ImageField(upload_to="images/")  # 이미지 파일이 MEDIA_ROOT/images/ 경로에 저장
+    image = models.ImageField(upload_to="images/")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
